@@ -46,6 +46,7 @@ public:
 	enum class MeasDelParam { PHA, FRR, FRF, FFR, FFF, LRR, LRF, LFR, LFF, SKEW };
 	enum class TimeDiv { UNSPEC, T_1nS, T_2nS, T_5nS, T_10nS, T_20nS, T_50nS, T_100nS, T_200nS, T_500nS, T_1uS, T_2uS, T_5uS, T_10uS, T_20uS, T_50uS, T_100uS, T_200uS, T_500uS, T_1mS, T_2mS, T_5mS, T_10mS, T_20mS, T_50mS, T_100mS, T_200mS, T_500mS, T_1S, T_2S, T_5S, T_10S, T_20S, T_50S, T_100S };
 	struct ScaleValues { double max; double min; double pp; double offset; double vdiv; };
+	struct ChBWLPair { Channel ch; BWLimit bwl; };
 
 	// channel configuration
 	bool SetChannelEx(Channel ch, bool enabled = true, VoltsPerDiv vdiv=VoltsPerDiv::UNSPEC, double offset=DEFAULT_PARAM, Coupling coup = Coupling::UNSPEC, BWLimit bwl=BWLimit::UNSPEC, ChAtten atten=ChAtten::UNSPEC, ChInvert inv=ChInvert::UNSPEC);
@@ -54,6 +55,7 @@ public:
 	bool SetChannelVoltsEx(Channel ch, double vdiv, double offset = DEFAULT_PARAM);
 	bool SetChannelOffset(Channel ch, double offset);
 	bool SetChannelBWL(Channel ch, BWLimit bwl);
+	bool SetChannelBWL(const std::vector<ChBWLPair> pairs);
 	bool SetChannelInvert(Channel ch, ChInvert inv);
 	bool SetChannelAtten(Channel ch, ChAtten atten);
 	bool SetChannelCoupling(Channel ch, Coupling coup);

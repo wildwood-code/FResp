@@ -8,7 +8,7 @@
 *   Implements an interface to a Siglent SDS 1000 X-E oscilloscope.
 *
 * Created    : 05/25/2020
-* Modified   : 01/01/2023
+* Modified   : 01/02/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 
@@ -428,11 +428,15 @@ void Oscilloscope::SetupOscilloscopeDefault()
 	// timebase
 	SetTimebase(TimeDiv::T_1mS, 0.0);
 
+	// bandwidth limit
+	const vector< ChBWLPair> ch_bwl_pairs = { {Channel::CH1, BWLimit::BWL_FULL}, {Channel::CH2, BWLimit::BWL_FULL}, {Channel::CH3, BWLimit::BWL_FULL}, {Channel::CH4, BWLimit::BWL_FULL} };
+	SetChannelBWL(ch_bwl_pairs);
+
 	// vertical (channel 1 and channel 2 on)
 	for (int i = 1; i <= 4; ++i)
 	{
 		const Channel ch = GetChannel(i);
-		SetChannelEx(ch, false, VoltsPerDiv::V_1V, 0.0, Coupling::DC, BWLimit::BWL_FULL, ChAtten::AT_10X, ChInvert::INV_OFF);
+		SetChannelEx(ch, false, VoltsPerDiv::V_1V, 0.0, Coupling::DC, BWLimit::UNSPEC, ChAtten::AT_10X, ChInvert::INV_OFF);  // BWL already set
 		SetChannelUnit(ch, ChUnit::V);
 		SetChannelSkew(ch, 0.0);
 		if (i > 2)
@@ -736,6 +740,47 @@ bool Oscilloscope::SetChannelBWL(Channel ch, BWLimit bwl)
 
 /*******************************************************************************
 * Class      : Oscilloscope
+* Function   : SetChannelBWL()
+* Access     : public
+* Arguments  : pairs    = list of channel, bwl pairs
+* Returns    : true if successful, false otherwise
+* Description:
+*   Sets the bandwidth limit for multiple channels simultaneously
+*/
+bool Oscilloscope::SetChannelBWL(const vector<ChBWLPair> pairs)
+{
+	bool bResult = false;
+	string strCmdArg = "";   // build this from the pairs
+
+	vector<ChBWLPair>::const_iterator pcb;
+
+	for (pcb = pairs.cbegin(); pcb < pairs.cend(); ++pcb)
+	{
+		Channel ch = pcb->ch;
+		BWLimit bwl = pcb->bwl;
+		const string strCh = GetChannelString(ch);
+		string strPair = "";
+
+		if (bwl== BWLimit::BWL_ON)
+			strPair =  strCh + ",ON";
+		else
+			strPair =  strCh + ",OFF";
+
+		if (strCmdArg.empty())
+			strCmdArg = strPair;
+		else
+			strCmdArg = strCmdArg + "," + strPair;
+	}
+
+	if (!strCmdArg.empty())
+		bResult = Write("BWL " + strCmdArg);
+
+	return bResult;
+}
+
+
+/*******************************************************************************
+* Class      : Oscilloscope
 * Function   : SetChannelInvert()
 * Access     : public
 * Arguments  : ch       = channel
@@ -889,22 +934,26 @@ bool Oscilloscope::SetChannelSkew(Channel ch, double skew)
 *              bwl      = bandwidth limit (BWL_FULL or BWL_ON)
 *              atten    = attenuation (AT_10X or AT_1X)
 *              inv      = channel inversion (INV_OFF or INV_ON)
+* 
+*              vdiv, offset, coup, bwl, atten, and inv may be UNSPEC
+*              in which case the setting is not changed
+* 
 * Returns    : true if successful, false otherwise
 * Description:
 *   Sets several parameters for the given channel with one call.
 */
 bool Oscilloscope::SetChannelEx(Channel ch, bool enabled, VoltsPerDiv vdiv, double offset, Coupling coup, BWLimit bwl, ChAtten atten, ChInvert inv)
 {
-	bool bResult = false;
+	bool bResult = true;
 	const string strCh = GetChannelString(ch);
 
-	bResult = SetChannelInvert(ch, inv);
-	if (bResult)	bResult = SetChannelAtten(ch, atten);
-	if (bResult)	bResult = SetChannelBWL(ch, bwl);
-	if (bResult)	bResult = SetChannelCoupling(ch, coup);
-	if (bResult)	bResult = SetChannelOffset(ch, offset);
-	if (bResult)	bResult = SetChannelVolts(ch, vdiv);
-	if (bResult)	bResult = SetChannelEnable(ch, enabled);
+	if (bResult && inv != ChInvert::UNSPEC)			bResult = SetChannelInvert(ch, inv);
+	if (bResult && atten != ChAtten::UNSPEC)		bResult = SetChannelAtten(ch, atten);
+	if (bResult && bwl != BWLimit::UNSPEC)			bResult = SetChannelBWL(ch, bwl);
+	if (bResult && coup != Coupling::UNSPEC)		bResult = SetChannelCoupling(ch, coup);
+	if (bResult && offset != DEFAULT_PARAM)			bResult = SetChannelOffset(ch, offset);
+	if (bResult && vdiv != VoltsPerDiv::UNSPEC)		bResult = SetChannelVolts(ch, vdiv);
+	if (bResult)									bResult = SetChannelEnable(ch, enabled);
 
 	return bResult;
 }

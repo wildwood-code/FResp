@@ -10,7 +10,7 @@
 *   the measurement is initiated using class FreqResp.
 *
 * Created    : 07/03/2020
-* Modified   : 01/01/2023
+* Modified   : 01/02/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *
 * History    : Ver    Date         Notes
@@ -20,6 +20,7 @@
 *              2.00    2021-11-95  Changed from VISA to Winsock
 *              2.01    2021-11-11  Fixed filename parsing
 *              2.02    2023-01-01  Added BWL switch for input, output
+*              2.03    2023-01-02  Modified Oscilloscope SetChannelEx & SetChannelBWL (does not affect MeasureResponse functionality)
 *******************************************************************************/
 
 #include <algorithm>
@@ -35,10 +36,9 @@
 
 using namespace std;
 
-constexpr auto VERSION = "2.02";
+constexpr auto VERSION = "2.03";
 
 //#define DEBUG_WITHOUT_INSTRUMENTS			// uncomment this to run the code without connecting to the instruments (for debugging parsing, etc)
-
 
 // HKEY_CURRENT_USER key location for program settings (WARNING! be aware of MAX_KEY_LENGTH)
 constexpr auto REGISTRY_KEY = "SOFTWARE\\WWES\\FResp\\Settings\\";
