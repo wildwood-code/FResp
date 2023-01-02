@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : MeasureResponse.cpp
@@ -10,7 +10,7 @@
 *   the measurement is initiated using class FreqResp.
 *
 * Created    : 07/03/2020
-* Modified   : 11/11/2021
+* Modified   : 01/01/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *
 * History    : Ver    Date         Notes
@@ -19,6 +19,7 @@
 *              1.00    2020-07-03  Implemented as MeasureResponse()
 *              2.00    2021-11-95  Changed from VISA to Winsock
 *              2.01    2021-11-11  Fixed filename parsing
+*              2.02    2023-01-01  Added BWL switch for input, output
 *******************************************************************************/
 
 #include <algorithm>
@@ -34,7 +35,7 @@
 
 using namespace std;
 
-constexpr auto VERSION = "2.01";
+constexpr auto VERSION = "2.02";
 
 //#define DEBUG_WITHOUT_INSTRUMENTS			// uncomment this to run the code without connecting to the instruments (for debugging parsing, etc)
 
@@ -65,7 +66,7 @@ int ExitPrintUsage(std::string strProgName)
 	std::cout << strProgName << " ";
 	std::cout << "freq:fstart-fstop,log|lin(npts) ";
 	std::cout << "stim:ch,vampl+voffset ";
-	std::cout << "in:ch,ac|dc,1x|10x out:ch,ac|dc,1x|10x ";
+	std::cout << "in:ch,ac|dc,1x|10x,bwl|-bwl out:ch,ac|dc,1x|10x,bwl|-bwl ";
 	std::cout << "trig:ch,ac|dc,rising|falling,vtrig ";
 	std::cout << "meas:Vpk|Vpp,phase|delay ";
 	std::cout << "dwell:fast|mid|slow file:filename,quiet|echo\n";
@@ -75,6 +76,7 @@ int ExitPrintUsage(std::string strProgName)
 	std::cout << "  stim vampl+voffset are optional, ch defaults to oscope in or may be S1-S2\n";
 	std::cout << "  in, out ch is 1-4 (ex/ ch1, c1, or 1 are equivalent)\n";
 	std::cout << "  in, out ac|dc coupling is optional, defaults to ac\n";
+	std::cout << "  in, out bwl|-bwl  bandwidth limit is optional, defaults to bwl\n";
 	std::cout << "  trig all parameters optional in any order\n";
 	std::cout << "  trig ch may be 1-4, in, or out\n";
 	std::cout << "  trig vtrig is the trigger voltage\n";
@@ -82,9 +84,9 @@ int ExitPrintUsage(std::string strProgName)
 	std::cout << "  file|log|report specifies a destination file for the output\n";
 	std::cout << "  quiet or echo specifies output to the standard output\n\n";
 	std::cout << "  " << strProgName << " Version " << VERSION << " (" << __DATE__ << " " << __TIME__ ")\n";
-	std::cout << "  Copyright (c) 2021 Kerry S. Martin, martin@wild-wood.net\n\n";
+	std::cout << "  Copyright (c) 2023 Kerry S. Martin, martin@wild-wood.net\n\n";
 	std::cout << "  Defaults:\n";
-	std::cout << "  " + strProgName + " freq:1k-100k,log(10) stim:S1,1.0Vpp+0Vdc in:C1,ac,10x out:C2,ac,10x trig:in,0.0mV,ac,rising meas:Vpp dwell:mid\n\n";
+	std::cout << "  " + strProgName + " freq:1k-100k,log(10) stim:S1,1.0Vpp+0Vdc in:C1,ac,10x,bwl out:C2,ac,10x,bwl trig:in,0.0mV,ac,rising meas:Vpp dwell:mid\n\n";
 
 	return RETURN_SUCCESS;
 }
@@ -649,15 +651,15 @@ int MeasureResponseParse
 	file = { true, "" };
 	freq = { 1000.0, 10000.0, Sweep_t::LOG, 10 };
 	stim = { 1, Vtype_t::VPP, 1.00, 0.00 };
-	input = { 1, Ctype_t::AC, 10.0 };
-	output = { 2, Ctype_t::AC, 10.0 };
+	input = { 1, Ctype_t::AC, 10.0, true };
+	output = { 2, Ctype_t::AC, 10.0, true };
 	trig = { CH_TRIG_IN, Etype_t::RISE, Ctype_t::AC, 0.0 };
 	meas = { Vtype_t::VPP, Ttype_t::PHASE };
 	dwell = { 2.0, 500 };
 
 	// regex patterns for parsing the command-line arguments
 	const string str_numeric_pos = "(\\+?\\d*\\.?\\d*(?:E(?:\\+|-)?\\d{1,3})?)(K|M)?";
-	const regex regex_oscope_ch("^(IN?|O(?:UT)?)(?::|=)(?:C|CH)?([1-4])(?:,(AC|DC|1X|10X))?(?:,(AC|DC|1X|10X))?$", regex::icase);
+	const regex regex_oscope_ch("^(IN?|O(?:UT)?)(?::|=)(?:C|CH)?([1-4])(?:,(AC|DC|1X|10X|-?BWL?))?(?:,(AC|DC|1X|10X|-?BWL?))?(?:,(AC|DC|1X|10X|-?BWL?))?$", regex::icase);
 	const regex regex_stim_spec("^S(?:TIM)?(?::|=)(.+)$", regex::icase);
 	const regex regex_freq_spec("^F(?:REQ)?(?::|=)" + str_numeric_pos + "(?:HZ)?\\-" + str_numeric_pos + "(?:HZ)?(?:\\,(LOG|LIN)(?:\\(|\\[)([0-9]+)(?:\\)|\\]))?$", regex::icase);
 	const regex regex_meas_spec("^M(?:EAS)?(?::|=)(.+)$", regex::icase);
@@ -687,47 +689,43 @@ int MeasureResponseParse
 			else
 				output.ch = stoi(strCh);
 
-			if (smMatch[3].matched)
+			// process the remaining arguments, which may be in any order
+			for (int idx_flag = 3 ; idx_flag <= 5 ; ++idx_flag)
 			{
-				const string str = smMatch[3];
-				if (str_compare_icase(str, "AC") || str_compare_icase(str, "DC"))
+				if (smMatch[idx_flag].matched)
 				{
-					const Ctype_t coup = (toupper(str[0]) == 'A') ? Ctype_t::AC : Ctype_t::DC;
-					if (bIn)
-						input.coup = coup;
-					else
-						output.coup = coup;
-				}
-				else
-				{
-					// 1X or 10X
-					const double atten = (toupper(str[1]) == 'X') ? 1.0 : 10.0;  // either 1X or 10X
-					if (bIn)
-						input.atten = atten;
-					else
-						output.atten = atten;
-				}
-			}
+					const string str = smMatch[idx_flag];
 
-			if (smMatch[4].matched)
-			{
-				const string str = smMatch[4];
-				if (str_compare_icase(str, "AC") || str_compare_icase(str, "DC"))
-				{
-					const Ctype_t coup = (toupper(str[0]) == 'A') ? Ctype_t::AC : Ctype_t::DC;
-					if (bIn)
-						input.coup = coup;
+					if (str_compare_icase(str, "AC") || str_compare_icase(str, "DC"))
+					{
+						const Ctype_t coup = (toupper(str[0]) == 'A') ? Ctype_t::AC : Ctype_t::DC;
+						if (bIn)
+							input.coup = coup;
+						else
+							output.coup = coup;
+					}
+					else if (str_compare_icase(str, "1X") || str_compare_icase(str, "10X"))
+					{
+						// 1X or 10X
+						const double atten = (toupper(str[1]) == 'X') ? 1.0 : 10.0;  // either 1X or 10X
+						if (bIn)
+							input.atten = atten;
+						else
+							output.atten = atten;
+					}
 					else
-						output.coup = coup;
+					{
+						// BWL or -BWL
+						const bool is_bwl = (str[0] == '-') ? false : true;
+						if (bIn)
+							input.bwl = is_bwl;
+						else
+							output.bwl = is_bwl;
+					}
 				}
 				else
 				{
-					// 1X or 10X
-					const double atten = (toupper(str[1]) == 'X') ? 1.0 : 10.0;  // either 1X or 10X
-					if (bIn)
-						input.atten = atten;
-					else
-						output.atten = atten;
+					break;
 				}
 			}
 		}
@@ -1132,6 +1130,6 @@ int MeasureResponseClose(FreqResp& response)
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

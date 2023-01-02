@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : MeasureResponse.cpp
@@ -10,7 +10,7 @@
 *   the measurement is initiated using class FreqResp.
 *
 * Created    : 07/03/2020
-* Modified   : 11/05/2021
+* Modified   : 01/01/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *
 * History    : Ver    Date         Notes
@@ -19,6 +19,7 @@
 *              1.00    2020-07-03  Implemented as MeasureResponse()
 *              2.00    2021-11-05  Changed from VISA to Winsock
 *              2.01    2021-11-11  Fixed filename parsing
+*              2.02    2023-01-02  Added BWL switch for input, output
 *******************************************************************************/
 
 
@@ -33,6 +34,6 @@ int main(int argc, char* argv[])
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

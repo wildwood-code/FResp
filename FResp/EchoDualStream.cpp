@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : EchoDualStream.cpp
@@ -13,7 +13,7 @@
 *   needed.
 *
 * Created    : 05/26/2020
-* Modified   : 05/26/2020
+* Modified   : 01/01/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 #include "EchoDualStream.h"
@@ -23,6 +23,6 @@ std::ostream EchoDualStream::null_stream(&EchoDualStream::null_buffer);
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : Oscilloscope.h
@@ -8,7 +8,7 @@
 *   Implements an interface to a Siglent SDS 1000 X-E oscilloscope.
 *
 * Created    : 05/25/2020
-* Modified   : 11/05/2021
+* Modified   : 01/02/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 #pragma once
@@ -113,6 +113,6 @@ constexpr auto OSCOPE_CH_4 = Oscilloscope::Channel::CH4;
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

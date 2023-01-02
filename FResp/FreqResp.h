@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : FreqResp.h
@@ -12,7 +12,7 @@
 *   generator and a Siglent oscilloscope.
 *
 * Created    : 05/26/2020
-* Modified   : 11/05/2021
+* Modified   : 01/01/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 #pragma once
@@ -55,6 +55,7 @@ struct Channel_Config
 	unsigned int ch;
 	Ctype_t coup;
 	double atten;
+	bool bwl;
 };
 
 struct Trig_Config
@@ -167,6 +168,6 @@ private:
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

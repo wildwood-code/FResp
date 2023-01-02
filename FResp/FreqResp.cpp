@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : FreqResp.h
@@ -12,7 +12,7 @@
 *   generator and a Siglent oscilloscope.
 *
 * Created    : 05/26/2020
-* Modified   : 11/05/2021
+* Modified   : 01/01/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 #include "FreqResp.h"
@@ -266,12 +266,20 @@ FRRET FreqResp::Init(char const* szOscope, char const* szSigGen, Freq_Config con
 		}
 
 		oscope.SetChannelEnable(osChannelInput, true);
+		if (input.bwl)
+			oscope.SetChannelBWL(osChannelInput, Oscilloscope::BWLimit::BWL_ON);
+		else
+			oscope.SetChannelBWL(osChannelInput, Oscilloscope::BWLimit::BWL_FULL);
 		if (input.atten == 10.0)
 			oscope.SetChannelAtten(osChannelInput, Oscilloscope::ChAtten::AT_10X);
 		else
 			oscope.SetChannelAtten(osChannelInput, Oscilloscope::ChAtten::AT_1X);
 		oscope.SetChannelVoltsEx(osChannelInput, 1.0, 0.0);
 		oscope.SetChannelEnable(osChannelOutput, true);
+		if (output.bwl)
+			oscope.SetChannelBWL(osChannelOutput, Oscilloscope::BWLimit::BWL_ON);
+		else
+			oscope.SetChannelBWL(osChannelOutput, Oscilloscope::BWLimit::BWL_FULL);
 		if (output.atten == 10.0)
 			oscope.SetChannelAtten(osChannelOutput, Oscilloscope::ChAtten::AT_10X);
 		else
@@ -603,6 +611,6 @@ double FreqResp::MeasureAndScaleInput(Oscilloscope& oscope, Oscilloscope::Channe
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

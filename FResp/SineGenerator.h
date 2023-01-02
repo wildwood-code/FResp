@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : SineGenerator.h
@@ -9,7 +9,7 @@
 *   generate a sinusoidal waveform.
 *
 * Created    : 05/25/2020
-* Modified   : 11/05/2021
+* Modified   : 01/02/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 #pragma once
@@ -46,6 +46,6 @@ constexpr auto SINEGEN_CH_2 = SineGenerator::Channel::CH2;
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

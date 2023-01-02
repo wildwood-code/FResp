@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : FResp_Settings.h
@@ -7,7 +7,7 @@
 *   Read settings from registry and optionally write default if non-existent
 *
 * Created    : 11/13/2021
-* Modified   : 11/13/2021
+* Modified   : 01/02/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 #pragma once
@@ -20,6 +20,6 @@ bool FResp_ReadRegSZ(char const* szKey, char const* szSetting, char* szResult, c
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/

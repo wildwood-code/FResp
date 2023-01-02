@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *
 * Filename   : Oscilloscope.cpp
@@ -8,7 +8,7 @@
 *   Implements an interface to a Siglent SDS 1000 X-E oscilloscope.
 *
 * Created    : 05/25/2020
-* Modified   : 11/05/2021
+* Modified   : 01/01/2023
 * Author     : Kerry S. Martin, martin@wild-wood.net
 *******************************************************************************/
 
@@ -724,10 +724,10 @@ bool Oscilloscope::SetChannelBWL(Channel ch, BWLimit bwl)
 	switch (bwl)
 	{
 	case BWLimit::BWL_FULL:
-		bResult = Write(strCh + ":BWL OFF");
+		bResult = Write("BWL " + strCh + ",OFF");
 		break;
 	case BWLimit::BWL_ON:
-		bResult = Write(strCh + ":BWL ON");
+		bResult = Write("BWL " + strCh + ",ON");
 		break;
 	}
 	return bResult;
@@ -1272,6 +1272,6 @@ bool Oscilloscope::SetTimebase(TimeDiv tdiv, double delay)
 
 
 /*******************************************************************************
-* Copyright © 2021 Kerry S. Martin, martin@wild-wood.net
+* Copyright © 2023 Kerry S. Martin, martin@wild-wood.net
 * Free for usage without warranty, expressed or implied; attribution required
 *******************************************************************************/
